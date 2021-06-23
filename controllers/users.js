@@ -1,13 +1,14 @@
 const UserModel = require('../models/userModel.js');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const secret = 'test';
 
 const signInUser = async (req, res) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
     try {
-        const existUser = await UserModel.findOne({ username });
+        const existUser = await UserModel.findOne({ email });
 
         if(!existUser) return res.status(404).json({ message: "User doesn't exist" });
 
@@ -23,7 +24,7 @@ const signInUser = async (req, res) => {
 }
 
 const signUpUser = async (req, res) => {
-    const { username, email, password } = req.body;
+    const { username, email, password, schoolId } = req.body;
 
     try {
         const existUser = await UserModel.findOne({ $or: [{ email }, { username }] });
@@ -47,14 +48,16 @@ const signUpUser = async (req, res) => {
             date: {
                 registered: date
             },
-            schoolId: 2,
+            schoolId,
             post: {
                 topics: [],
                 replies: []
             }
         })
 
-        res.status(201).json({ result })
+        const token = jwt.sign({ email: result.email, username: result.username, id: result._id }, secret);
+
+        res.status(201).json({ result, token })
 
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });
