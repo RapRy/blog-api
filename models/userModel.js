@@ -11,6 +11,7 @@ const userSchema = new Schema({
     password: String,
     avatar: String,
     accountType: Number,
+    active: Number,
     date: {
         registered: Date,
         updated: Date,

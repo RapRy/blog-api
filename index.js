@@ -4,6 +4,9 @@ const cors = require('cors')
 const dotenv = require('dotenv')
 
 const UsersRoutes = require('./routes/users.js');
+const CategoriesRoutes = require('./routes/categories.js');
+
+const Auth = require('./middleware/auth.js');
 
 const app = express();
 dotenv.config();
@@ -16,6 +19,9 @@ app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 
 app.use('/users', UsersRoutes);
+
+app.use('/categories', CategoriesRoutes);
+app.use('/categories', Auth, CategoriesRoutes);
 
 app.get("/", (req, res) => res.send('nothing here for you'));
 

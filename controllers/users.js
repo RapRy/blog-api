@@ -2,7 +2,25 @@ const UserModel = require('../models/userModel.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const secret = 'test';
+const getActiveUsersCount = async (req, res) => {
+    try {
+        const activeUsersCount = await UserModel.countDocuments({ active: 1, accountType: 0 })
+
+        res.status(200).json({ activeUsersCount });
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
+const getAllUsersCount = async (req, res) => {
+    try {
+        const registeredUsersCount = await UserModel.countDocuments({ accountType: 0 })
+
+        res.status(200).json({ registeredUsersCount });
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
 
 const signInUser = async (req, res) => {
     const { email, password } = req.body;
@@ -16,7 +34,9 @@ const signInUser = async (req, res) => {
 
         if(!isPasswordCorrect) return res.status(400).json({ message: "Invalid credentials" });
 
-        res.status(200).json({ result: existUser });
+        const token = jwt.sign({ email: existUser.email, username: existUser.username, id: existUser._id }, process.env.SECRET);
+
+        res.status(200).json({ result: existUser, token });
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });
         console.log(error); 
@@ -55,7 +75,7 @@ const signUpUser = async (req, res) => {
             }
         })
 
-        const token = jwt.sign({ email: result.email, username: result.username, id: result._id }, secret);
+        const token = jwt.sign({ email: result.email, username: result.username, id: result._id }, process.env.SECRET);
 
         res.status(201).json({ result, token })
 
@@ -66,6 +86,8 @@ const signUpUser = async (req, res) => {
 }
 
 module.exports = {
+    getActiveUsersCount,
+    getAllUsersCount,
     signUpUser,
     signInUser
 }
