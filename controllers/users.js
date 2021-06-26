@@ -77,7 +77,7 @@ const signUpUser = async (req, res) => {
 
         const token = jwt.sign({ email: result.email, username: result.username, id: result._id }, process.env.SECRET);
 
-        res.status(201).json({ result, token })
+        res.status(200).json({ result, token })
 
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });
