@@ -1,5 +1,15 @@
 const CategoryModel = require('../models/categoryModel.js');
 
+const getCategory = async (req, res) => {
+    try {
+        const category = await CategoryModel.findOne({ _id: req.params.id })
+
+        res.status(200).json({ category })
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
 const getCategories = async (req, res) => {
     try {
         const categories = await CategoryModel.find({ active: 1 }).sort({ name: 1 })
@@ -32,8 +42,8 @@ const addCategory = async (req, res) => {
             name, 
             active: 1, 
             meta: { 
-                topics: 0,
-                replies: 0
+                topics: [],
+                replies: []
             } 
         })
 
@@ -44,6 +54,7 @@ const addCategory = async (req, res) => {
 }
 
 module.exports = {
+    getCategory,
     getCategories,
     getCategoriesCount,
     addCategory
