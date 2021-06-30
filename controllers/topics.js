@@ -1,6 +1,30 @@
 const TopicModel = require('../models/topicModel.js');
 const CategoryModel = require('../models/categoryModel');
 
+const getTopics = async (req, res) => {
+    const id = req.params.id
+
+    if(id === "topics"){
+        try {
+            const topics = await TopicModel.find({ active: 1 })
+
+            res.status(200).json(topics)
+        } catch (error) {
+            res.status(404).json({ message: error.message })
+        }
+    }else{
+        
+        try {
+            const topics = await TopicModel.find({ 'ref.category': id, active: 1 })
+    
+            res.status(200).json(topics)
+        } catch (error) {
+            res.status(404).json({ message: error.message })
+        }
+    }
+
+}
+
 const publishTopic = async (req, res) => {
     const { title, ref, description } = req.body;
     const { category, creator } = ref;
@@ -28,11 +52,11 @@ const publishTopic = async (req, res) => {
 
         res.status(200).json({ result: topicResult, status: 1 })
     } catch (error) {
-        console.log(error)
         res.status(404).json({ message: error.message })
     }
 }
 
 module.exports = {
+    getTopics,
     publishTopic
 }

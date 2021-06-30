@@ -2,6 +2,17 @@ const UserModel = require('../models/userModel.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+const getUser = async (req, res) => {
+    const id = req.params.id
+
+    try {
+        const user = await UserModel.findById(id)
+        res.status(200).json(user)
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
 const getActiveUsersCount = async (req, res) => {
     try {
         const activeUsersCount = await UserModel.countDocuments({ active: 1, accountType: 0 })
@@ -86,6 +97,7 @@ const signUpUser = async (req, res) => {
 }
 
 module.exports = {
+    getUser,
     getActiveUsersCount,
     getAllUsersCount,
     signUpUser,

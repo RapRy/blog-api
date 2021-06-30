@@ -13,7 +13,7 @@ const topicSchema = new Schema({
         replies: [String],
         views: [String]
     }
-}, { timestamp: true })
+}, { timestamps: true })
 
 const Topics = model('topic', topicSchema);
 
