@@ -1,5 +1,22 @@
 const TopicModel = require('../models/topicModel.js');
 const CategoryModel = require('../models/categoryModel');
+const UserModel = require('../models/userModel.js')
+
+const getTopic = async (req, res) => {
+    const id = req.params.id
+
+    try {
+        const topic = await TopicModel.findById(id)
+
+        const creator = await UserModel.findById(topic.ref.creator)
+
+        const category = await CategoryModel.findById(topic.ref.category)
+
+        res.status(200).json({ topic, creator, category })
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
 
 const getTopics = async (req, res) => {
     const id = req.params.id
@@ -46,8 +63,18 @@ const publishTopic = async (req, res) => {
             }
         })
 
-        const categoryUpdateResult = await CategoryModel.findByIdAndUpdate(category, { 
+        const creatorValues = await UserModel.findById(creator)
+
+
+        await CategoryModel.findByIdAndUpdate(category, { 
             meta: { ...categoryValues.meta, ['topics']: [ ...categoryValues.meta.topics, topicResult._id ] } 
+        }, { useFindAndModify: false })
+
+        await UserModel.findByIdAndUpdate(creator, {
+            post: {
+                ...creatorValues.post,
+                ['topics']: [ ...creatorValues.post.topics, topicResult._id ]
+            } 
         }, { useFindAndModify: false })
 
         res.status(200).json({ result: topicResult, status: 1 })
@@ -58,5 +85,6 @@ const publishTopic = async (req, res) => {
 
 module.exports = {
     getTopics,
+    getTopic,
     publishTopic
 }

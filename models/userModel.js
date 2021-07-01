@@ -22,7 +22,7 @@ const userSchema = new Schema({
         topics: [String],
         replies: [String]
     }
-});
+}, { timestamps: true });
 
 const Users = model('user', userSchema);
 

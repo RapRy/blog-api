@@ -6,6 +6,7 @@ const dotenv = require('dotenv')
 const UsersRoutes = require('./routes/users.js');
 const CategoriesRoutes = require('./routes/categories.js');
 const TopicRoutes = require('./routes/topics.js');
+const RepliesRoutes = require('./routes/replies.js');
 
 const app = express();
 dotenv.config();
@@ -22,6 +23,8 @@ app.use('/users', UsersRoutes);
 app.use('/categories', CategoriesRoutes);
 
 app.use('/topics', TopicRoutes);
+
+app.use('/replies', RepliesRoutes);
 
 app.get("/", (req, res) => res.send('nothing here for you'));
 
