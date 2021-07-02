@@ -76,6 +76,7 @@ const signUpUser = async (req, res) => {
             password: hashedPassword,
             avatar: "",
             accountType: 0,
+            active: 1,
             date: {
                 registered: date
             },

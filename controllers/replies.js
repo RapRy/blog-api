@@ -46,6 +46,16 @@ const addReply = async (req, res) => {
     }
 }
 
+const repliesCount = async (req, res) => {
+    try {
+        const repliesCount = await ReplyModel.countDocuments({ active: 1 })
+        res.status(200).json({ repliesCount });
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
 module.exports = {
-    addReply
+    addReply,
+    repliesCount
 }

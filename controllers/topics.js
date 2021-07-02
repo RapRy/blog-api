@@ -1,6 +1,16 @@
 const TopicModel = require('../models/topicModel.js');
 const CategoryModel = require('../models/categoryModel');
 const UserModel = require('../models/userModel.js')
+const ReplyModel = require('../models/replyModel.js')
+
+const getTopicCounts = async (req, res) => {
+    try {
+        const topicsCount = await TopicModel.countDocuments({ active: 1 })
+        res.status(200).json({ topicsCount });
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
 
 const getTopic = async (req, res) => {
     const id = req.params.id
@@ -12,7 +22,45 @@ const getTopic = async (req, res) => {
 
         const category = await CategoryModel.findById(topic.ref.category)
 
-        res.status(200).json({ topic, creator, category })
+        const replies = await ReplyModel.find({ 'ref.topic': id })
+
+        res.status(200).json({ topic, creator, category, replies })
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
+const getLatestTopics = async (req, res) => {
+    try {
+        const topics = await TopicModel.find({ active: 1 }).sort({ createdAt: -1 }).limit(6)
+
+        res.status(200).json(topics)
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
+const getHotTopics = async (req, res) => {
+    try {
+        const topics = await TopicModel.find({ active: 1 }).sort({ 'meta.replies': -1 }).limit(6)
+
+        res.status(200).json(topics)
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
+const getRelatedTopics = async (req, res) => {
+    try {
+        const id = req.params.id
+
+        const currentTopic = await TopicModel.findById(id)
+
+        const topics = await TopicModel.find({ 'ref.category': currentTopic.ref.category, _id: { $nin: [id] } })
+
+        const filtered = topics.filter(top => top._id !== currentTopic._id)
+
+        res.status(200).json(filtered)
     } catch (error) {
         res.status(404).json({ message: error.message })
     }
@@ -83,8 +131,30 @@ const publishTopic = async (req, res) => {
     }
 }
 
+const addTopicViews = async (req, res) => {
+    try {
+        const { topicId, viewer } = req.body
+
+        const topic = await TopicModel.findById(topicId)
+
+        await TopicModel.findByIdAndUpdate(topicId, {
+            'meta.views': [ ...topic.meta.views, viewer ]
+        }, { useFindAndModify: false })
+
+        res.status(200)
+
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
 module.exports = {
     getTopics,
     getTopic,
-    publishTopic
+    publishTopic,
+    addTopicViews,
+    getTopicCounts,
+    getLatestTopics,
+    getHotTopics,
+    getRelatedTopics
 }
