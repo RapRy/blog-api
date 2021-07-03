@@ -5,8 +5,7 @@ const categorySchema = new Schema({
     name: String,
     active: Number,
     meta: {
-        topics: [String],
-        replies: [String]
+        topics: [String]
     }   
 }, { timestamps: true });
 

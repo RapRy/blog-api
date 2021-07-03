@@ -7,7 +7,7 @@ const addReply = async (req, res) => {
 
     try {
         const { reply, ref } = req.body
-        const { creator, category, topic } = ref
+        const { creator, topic } = ref
 
         const Reply = await ReplyModel.create({
             reply,
@@ -16,20 +16,12 @@ const addReply = async (req, res) => {
         })
 
         const topicValues = await TopicModel.findById(topic)
-        const categoryValues = await CategoryModel.findById(category)
         const userValues = await UserModel.findById(creator)
 
         await TopicModel.findByIdAndUpdate(topic, {
             meta: {
                 ...topicValues.meta,
                 ['replies']: [ ...topicValues.meta.replies, Reply._id ]
-            }
-        }, { useFindAndModify: false })
-
-        await CategoryModel.findByIdAndUpdate(category, {
-            meta: {
-                ...categoryValues.meta,
-                ['replies']: [ ...categoryValues.meta.replies, Reply._id ]
             }
         }, { useFindAndModify: false })
 

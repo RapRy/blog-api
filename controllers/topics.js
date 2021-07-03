@@ -42,9 +42,18 @@ const getLatestTopics = async (req, res) => {
 
 const getHotTopics = async (req, res) => {
     try {
-        const topics = await TopicModel.find({ active: 1 }).sort({ 'meta.replies': -1 }).limit(6)
+        // const topics = await TopicModel.find({ active: 1, 'meta.replies': { $gt: { $size: 2 } } }).limit(6)
 
-        res.status(200).json(topics)
+        const topics = await TopicModel.find({ active: 1 })
+
+        const hotTopics = [];
+
+        topics.forEach((top, i) => {
+            if(i === 6) return
+            if(top.meta.replies.length >= 2) hotTopics.push(top)
+        })
+
+        res.status(200).json(hotTopics)
     } catch (error) {
         res.status(404).json({ message: error.message })
     }
@@ -148,6 +157,51 @@ const addTopicViews = async (req, res) => {
     }
 }
 
+const updateTopic = async (req, res) => {
+    try {
+        const { title, ref, description, topicId } = req.body;
+        const { category, creator } = ref;
+
+        const topicExist = await TopicModel.findOne({ title, 'ref.category': category })
+
+        if(topicExist){
+            const cat = await CategoryModel.findById(category)
+            return res.status(200).json({ message: `${title} already exists in ${cat.name}`, status: 0 })
+        }
+
+        const previousTopic = await TopicModel.findById(topicId)
+
+        const updatedTopic = await TopicModel.findByIdAndUpdate(topicId, { 
+            title, 
+            description,
+            ref,
+        }, { useFindAndModify: false, new: true })
+
+        if(previousTopic.ref.category !== updatedTopic.ref.category){
+
+            console.log('howdy')
+            const cat = await CategoryModel.findById(previousTopic.ref.category)
+
+            const filteredCatMeta = cat.meta.topics.filter((id) => id !== topicId)
+
+            await CategoryModel.findByIdAndUpdate(previousTopic.ref.category, {
+                'meta.topics': filteredCatMeta
+            }, { useFindAndModify: false })
+
+            const newCat = await CategoryModel.findById(updatedTopic.ref.category)
+
+            await CategoryModel.findByIdAndUpdate(updatedTopic.ref.category, {
+                'meta.topics': [ ...newCat.meta.topics,  topicId]
+            }, { useFindAndModify: false })
+        }
+
+        res.status(200).json({ result: updatedTopic, status: 1 })
+
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
 module.exports = {
     getTopics,
     getTopic,
@@ -156,5 +210,6 @@ module.exports = {
     getTopicCounts,
     getLatestTopics,
     getHotTopics,
-    getRelatedTopics
+    getRelatedTopics,
+    updateTopic
 }
