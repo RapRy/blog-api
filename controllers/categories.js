@@ -1,4 +1,5 @@
 const CategoryModel = require('../models/categoryModel.js');
+const TopicModel = require('../models/topicModel.js');
 
 const getCategory = async (req, res) => {
     try {
@@ -53,9 +54,24 @@ const addCategory = async (req, res) => {
     }
 }
 
+const updateActiveStatus = async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        const topics = await TopicModel.updateMany({ 'ref.category': id }, { active: 0 })
+
+        const category = await CategoryModel.findByIdAndUpdate(id, { active: 0 }, { useFindAndModify: false })
+
+        res.status(200).json({ message: "success" })
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
 module.exports = {
     getCategory,
     getCategories,
     getCategoriesCount,
-    addCategory
+    addCategory,
+    updateActiveStatus
 }

@@ -40,11 +40,42 @@ const getLatestTopics = async (req, res) => {
     }
 }
 
+const getLatestTopicsByCategory = async (req, res) => {
+    try {
+       const id = req.params.id 
+
+       const topics = await TopicModel.find({ active: 1, 'ref.category': id }).sort({ createdAt: -1 }).limit(5)
+
+       res.status(200).json(topics)
+    } catch (error) {
+       res.status(404).json({ message: error.message }) 
+    }
+}
+
 const getHotTopics = async (req, res) => {
     try {
         // const topics = await TopicModel.find({ active: 1, 'meta.replies': { $gt: { $size: 2 } } }).limit(6)
 
         const topics = await TopicModel.find({ active: 1 })
+
+        const hotTopics = [];
+
+        topics.forEach((top, i) => {
+            if(i === 6) return
+            if(top.meta.replies.length >= 2) hotTopics.push(top)
+        })
+
+        res.status(200).json(hotTopics)
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
+const getHotTopicsByCategory = async (req, res) => {
+    try {
+        const id = req.params.id 
+
+        const topics = await TopicModel.find({ active: 1, 'ref.category': id })
 
         const hotTopics = [];
 
@@ -211,5 +242,7 @@ module.exports = {
     getLatestTopics,
     getHotTopics,
     getRelatedTopics,
-    updateTopic
+    updateTopic,
+    getLatestTopicsByCategory,
+    getHotTopicsByCategory
 }
