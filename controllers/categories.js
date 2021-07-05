@@ -1,5 +1,6 @@
 const CategoryModel = require('../models/categoryModel.js');
 const TopicModel = require('../models/topicModel.js');
+const ReplyModel = require('../models/replyModel.js')
 
 const getCategory = async (req, res) => {
     try {
@@ -58,7 +59,9 @@ const updateActiveStatus = async (req, res) => {
     try {
         const id = req.params.id;
 
-        const topics = await TopicModel.updateMany({ 'ref.category': id }, { active: 0 })
+        await ReplyModel.updateMany({ 'ref.category': id }, { active: 0 })
+
+        await TopicModel.updateMany({ 'ref.category': id }, { active: 0 })
 
         const category = await CategoryModel.findByIdAndUpdate(id, { active: 0 }, { useFindAndModify: false })
 

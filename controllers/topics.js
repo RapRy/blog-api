@@ -32,6 +32,7 @@ const getTopic = async (req, res) => {
 
 const getLatestTopics = async (req, res) => {
     try {
+        const limit = req.params.limit
         const topics = await TopicModel.find({ active: 1 }).sort({ createdAt: -1 }).limit(6)
 
         res.status(200).json(topics)
@@ -46,7 +47,9 @@ const getLatestTopicsByCategory = async (req, res) => {
 
        const topics = await TopicModel.find({ active: 1, 'ref.category': id }).sort({ createdAt: -1 }).limit(5)
 
-       res.status(200).json(topics)
+       const category = await CategoryModel.findOne({ active: 1, _id: id })
+
+       res.status(200).json({ topics, category })
     } catch (error) {
        res.status(404).json({ message: error.message }) 
     }
@@ -55,14 +58,17 @@ const getLatestTopicsByCategory = async (req, res) => {
 const getHotTopics = async (req, res) => {
     try {
         // const topics = await TopicModel.find({ active: 1, 'meta.replies': { $gt: { $size: 2 } } }).limit(6)
-
+        const limit = req.params.limit
         const topics = await TopicModel.find({ active: 1 })
+
+        const maxReplies = 2;
 
         const hotTopics = [];
 
         topics.forEach((top, i) => {
-            if(i === 6) return
-            if(top.meta.replies.length >= 2) hotTopics.push(top)
+
+            if(i === 6 && limit !== 0) return
+            if(top.meta.replies.length >= maxReplies) hotTopics.push(top)
         })
 
         res.status(200).json(hotTopics)
@@ -84,7 +90,9 @@ const getHotTopicsByCategory = async (req, res) => {
             if(top.meta.replies.length >= 2) hotTopics.push(top)
         })
 
-        res.status(200).json(hotTopics)
+        const category = await CategoryModel.findOne({ active: 1, _id: id })
+
+        res.status(200).json({ hotTopics, category })
     } catch (error) {
         res.status(404).json({ message: error.message })
     }
@@ -233,6 +241,25 @@ const updateTopic = async (req, res) => {
     }
 }
 
+const updateActiveStatus = async (req, res) => {
+    try {
+        const id = req.params.id
+
+        const topic = await TopicModel.findByIdAndUpdate(id, { active: 0 }, {
+            useFindAndModify: false, new: true
+        })
+
+        if(topic){
+            await ReplyModel.updateMany({ 'ref.topic': topic._id }, { active: 0 })
+
+            res.status(200).json({ message: "success" })
+        }
+
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
 module.exports = {
     getTopics,
     getTopic,
@@ -244,5 +271,6 @@ module.exports = {
     getRelatedTopics,
     updateTopic,
     getLatestTopicsByCategory,
-    getHotTopicsByCategory
+    getHotTopicsByCategory,
+    updateActiveStatus
 }
