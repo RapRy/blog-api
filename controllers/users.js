@@ -13,6 +13,36 @@ const getUser = async (req, res) => {
     }
 }
 
+const getRegisteredUsers = async (req, res) => {
+    try {
+        const users = await UserModel.find({ active: 0 }).sort({ createdAt: -1 })
+
+        res.status(200).json(users)
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
+const getNewUsers = async (req, res) => {
+    try {
+        const limit = parseInt(req.params.limit)
+        const users = await UserModel.find({ active: 1, accountType: 0 }).sort({ createdAt: -1 }).limit(limit)
+        res.status(200).json(users)
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
+const getActiveUsers = async (req, res) => {
+    try {
+        const limit = parseInt(req.params.limit)
+        const users = await UserModel.find({ active: 1 }).limit(limit)
+        res.status(200).json(users)
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
 const getActiveUsersCount = async (req, res) => {
     try {
         const activeUsersCount = await UserModel.countDocuments({ active: 1, accountType: 0 })
@@ -76,9 +106,11 @@ const signUpUser = async (req, res) => {
             password: hashedPassword,
             avatar: "",
             accountType: 0,
-            active: 1,
+            active: 0,
+            blacklisted: 0,
             date: {
-                registered: date
+                registered: date,
+                activity: []
             },
             schoolId,
             post: {
@@ -102,5 +134,8 @@ module.exports = {
     getActiveUsersCount,
     getAllUsersCount,
     signUpUser,
-    signInUser
+    signInUser,
+    getNewUsers,
+    getActiveUsers,
+    getRegisteredUsers
 }

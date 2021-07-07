@@ -9,6 +9,8 @@ const addReply = async (req, res) => {
         const { reply, ref } = req.body
         const { creator, topic } = ref
 
+        const date = new Date()
+
         const Reply = await ReplyModel.create({
             reply,
             active: 1,
@@ -17,6 +19,10 @@ const addReply = async (req, res) => {
 
         const topicValues = await TopicModel.findById(topic)
         const userValues = await UserModel.findById(creator)
+        const activity =  { id: Reply._id, date }
+
+
+        console.log(activity)
 
         await TopicModel.findByIdAndUpdate(topic, {
             meta: {
@@ -28,8 +34,12 @@ const addReply = async (req, res) => {
         await UserModel.findByIdAndUpdate(creator, {
             post: {
                 ...userValues.post,
-                ['replies']: [ ...userValues.post.replies, Reply._id ]
-            }
+                ['replies']: [ ...userValues.post.replies, Reply._id ],
+            },
+            'date.activity': [ 
+                ...userValues.date.activity, 
+                activity
+            ]
         }, { useFindAndModify: false })
 
         res.status(200).json(Reply)

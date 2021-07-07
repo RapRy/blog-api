@@ -32,8 +32,9 @@ const getTopic = async (req, res) => {
 
 const getLatestTopics = async (req, res) => {
     try {
-        const limit = req.params.limit
-        const topics = await TopicModel.find({ active: 1 }).sort({ createdAt: -1 }).limit(6)
+        const limit = parseInt(req.params.limit)
+        
+        const topics = await TopicModel.find({ active: 1 }).sort({ createdAt: -1 }).limit(limit)
 
         res.status(200).json(topics)
     } catch (error) {
@@ -58,8 +59,8 @@ const getLatestTopicsByCategory = async (req, res) => {
 const getHotTopics = async (req, res) => {
     try {
         // const topics = await TopicModel.find({ active: 1, 'meta.replies': { $gt: { $size: 2 } } }).limit(6)
-        const limit = req.params.limit
-        const topics = await TopicModel.find({ active: 1 })
+        const limit = parseInt(req.params.limit)
+        const topics = await TopicModel.find({ active: 1 }).limit(limit)
 
         const maxReplies = 2;
 

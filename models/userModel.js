@@ -12,10 +12,13 @@ const userSchema = new Schema({
     avatar: String,
     accountType: Number,
     active: Number,
+    blacklisted: Number,
     date: {
         registered: Date,
-        updated: Date,
-        activity: Date
+        activity: [{
+            id: String,
+            date: Date
+        }]
     },
     schoolId: Number,
     post: {
