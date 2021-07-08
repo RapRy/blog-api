@@ -152,13 +152,19 @@ const signUpUser = async (req, res) => {
 
 const updateUserDetails = async (req, res) => {
     try {
-        const { email, firstName, LastName, username, schoolId, id } = req.body
+        const { email, firstName, lastName, username, schoolId, id } = req.body
 
         // const existUsername = await UserModel.findOne({ username })
 
         // if(existUsername) return res.status(200).json({ message: 'username already in use', status: 0 })
 
-        const user = await UserModel.findByIdAndUpdate(id, { email, firstName, LastName, username, schoolId }, { useFindAndModify: false, new: true })
+        const user = await UserModel.findByIdAndUpdate(id, { 
+            email, 
+            'name.firstName': firstName, 
+            'name.lastName': lastName, 
+            username, 
+            schoolId 
+        }, { useFindAndModify: false, new: true })
 
         const token = jwt.sign({ email: user.email, username: user.username, id: user._id }, process.env.SECRET)
 

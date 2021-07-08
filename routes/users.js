@@ -21,6 +21,6 @@ router.put('/deactivate/:id', Auth, deactivateUser)
 router.get('/:id', getUser);
 router.get('/:id/topics', getTopicsByUser)
 
-router.put('/updateDetails', updateUserDetails)
+router.put('/updateDetails', Auth, updateUserDetails)
 
 module.exports = router;
