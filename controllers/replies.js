@@ -22,7 +22,6 @@ const addReply = async (req, res) => {
         const activity =  { id: Reply._id, date }
 
 
-        console.log(activity)
 
         await TopicModel.findByIdAndUpdate(topic, {
             meta: {
@@ -57,7 +56,19 @@ const repliesCount = async (req, res) => {
     }
 }
 
+const getReplies = async (req, res) => {
+    try {
+        const id = req.params.id
+        const replies = await ReplyModel.find({ 'ref.topic': id, active: 1 })
+
+        res.status(200).json(replies)
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
 module.exports = {
     addReply,
-    repliesCount
+    repliesCount,
+    getReplies
 }

@@ -1,4 +1,6 @@
 const UserModel = require('../models/userModel.js');
+const TopicModel = require('../models/topicModel.js');
+const ReplyModel = require('../models/replyModel.js')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -13,9 +15,30 @@ const getUser = async (req, res) => {
     }
 }
 
+const getTopicsByUser = async (req, res) => {
+    try {
+        const id = req.params.id
+        const topics = await TopicModel.find({ 'ref.creator': id, active: 1 })
+
+        res.status(200).json(topics)
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
+const getBlacklistedUsers = async (req, res) => {
+    try {
+        const users = await UserModel.find({ active: 1, blacklisted: 1 }).sort({ updatedAt: -1 })
+
+        res.status(200).json(users)
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
 const getRegisteredUsers = async (req, res) => {
     try {
-        const users = await UserModel.find({ active: 0 }).sort({ createdAt: -1 })
+        const users = await UserModel.find({$or: [{ active: 0, blacklisted: 0, accountType: 0 }, { active: 1 }]}).sort({ createdAt: -1 })
 
         res.status(200).json(users)
     } catch (error) {
@@ -36,7 +59,7 @@ const getNewUsers = async (req, res) => {
 const getActiveUsers = async (req, res) => {
     try {
         const limit = parseInt(req.params.limit)
-        const users = await UserModel.find({ active: 1 }).limit(limit)
+        const users = await UserModel.find({ active: 1, blacklisted: 0, accountType: 0 }).limit(limit)
         res.status(200).json(users)
     } catch (error) {
         res.status(404).json({ message: error.message })
@@ -45,7 +68,7 @@ const getActiveUsers = async (req, res) => {
 
 const getActiveUsersCount = async (req, res) => {
     try {
-        const activeUsersCount = await UserModel.countDocuments({ active: 1, accountType: 0 })
+        const activeUsersCount = await UserModel.countDocuments({ active: 1, blacklisted: 0, accountType: 0 })
 
         res.status(200).json({ activeUsersCount });
     } catch (error) {
@@ -73,14 +96,13 @@ const signInUser = async (req, res) => {
 
         const isPasswordCorrect = await bcrypt.compare(password, existUser.password);
 
-        if(!isPasswordCorrect) return res.status(400).json({ message: "Invalid credentials" });
+        if(!isPasswordCorrect || existUser.active === 0 || existUser.blacklisted === 1) return res.status(400).json({ message: "Invalid credentials" });
 
         const token = jwt.sign({ email: existUser.email, username: existUser.username, id: existUser._id }, process.env.SECRET);
 
         res.status(200).json({ result: existUser, token });
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });
-        console.log(error); 
     }
 }
 
@@ -125,7 +147,73 @@ const signUpUser = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ message: "Something went wrong" });
-        console.log(error); 
+    }
+}
+
+const updateUserDetails = async (req, res) => {
+    try {
+        const { email, firstName, LastName, username, schoolId, id } = req.body
+
+        // const existUsername = await UserModel.findOne({ username })
+
+        // if(existUsername) return res.status(200).json({ message: 'username already in use', status: 0 })
+
+        const user = await UserModel.findByIdAndUpdate(id, { email, firstName, LastName, username, schoolId }, { useFindAndModify: false, new: true })
+
+        const token = jwt.sign({ email: user.email, username: user.username, id: user._id }, process.env.SECRET)
+
+        res.status(200).json({ result: user, token })
+    } catch (error) {
+        res.status(500).json({ message: "Something went wrong" })
+    }
+}
+
+const blockUser = async (req, res) => {
+    try {
+        const id = req.params.id
+
+        await UserModel.findByIdAndUpdate(id, { blacklisted: 1 }, { useFindAndModify: false })
+
+        res.status(200).json({ message: 'success' })
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
+const unblockUser = async (req, res) => {
+    try {
+        const id = req.params.id
+
+        await UserModel.findByIdAndUpdate(id, { blacklisted: 0 }, { useFindAndModify: false })
+
+        res.status(200).json({ message: 'success' })
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
+const activateUser = async (req, res) => {
+    try {
+        const id = req.params.id
+
+        await UserModel.findByIdAndUpdate(id, { active: 1 }, { useFindAndModify: false })
+
+        res.status(200).json({ message: 'success' })
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
+const deactivateUser = async (req, res) => {
+    try {
+        const id = req.params.id
+
+        await UserModel.findByIdAndUpdate(id, { active: 0 }, { useFindAndModify: false })
+
+        res.status(200).json({ message: 'success' })
+
+    } catch (error) {
+        res.status(404).json({ message: error.message })
     }
 }
 
@@ -137,5 +225,12 @@ module.exports = {
     signInUser,
     getNewUsers,
     getActiveUsers,
-    getRegisteredUsers
+    getRegisteredUsers,
+    blockUser,
+    getBlacklistedUsers,
+    activateUser,
+    unblockUser,
+    deactivateUser,
+    getTopicsByUser,
+    updateUserDetails
 }
