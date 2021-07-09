@@ -261,6 +261,18 @@ const updateActiveStatus = async (req, res) => {
     }
 }
 
+const searchTopics = async (req, res) => {
+    try {
+        const keyword = req.params.keyword
+
+        const topics = await TopicModel.find({ 'title': { $regex: `.*${keyword}*.` }})
+
+        res.status(200).json(topics)
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
 module.exports = {
     getTopics,
     getTopic,
@@ -273,5 +285,6 @@ module.exports = {
     updateTopic,
     getLatestTopicsByCategory,
     getHotTopicsByCategory,
-    updateActiveStatus
+    updateActiveStatus,
+    searchTopics
 }

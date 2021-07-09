@@ -1,5 +1,5 @@
 const express = require('express');
-const { publishTopic, getTopics, getTopic, addTopicViews, getTopicCounts, getLatestTopics, getHotTopics, getRelatedTopics, updateTopic, getHotTopicsByCategory, getLatestTopicsByCategory, updateActiveStatus } = require('../controllers/topics.js');
+const { publishTopic, getTopics, getTopic, addTopicViews, getTopicCounts, getLatestTopics, getHotTopics, getRelatedTopics, updateTopic, getHotTopicsByCategory, getLatestTopicsByCategory, updateActiveStatus, searchTopics } = require('../controllers/topics.js');
 
 const router = express.Router();
 
@@ -13,6 +13,7 @@ router.get('/latest/:id', getLatestTopicsByCategory)
 router.get('/hot/:id', getHotTopicsByCategory)
 router.get('/:id', getTopics);
 router.get('/details/:id', getTopic);
+router.get('/search/:keyword', searchTopics);
 
 router.post('/publish', Auth, publishTopic);
 router.post('/views', Auth, addTopicViews);
