@@ -203,8 +203,9 @@ const updateTopic = async (req, res) => {
         const { category, creator } = ref;
 
         const topicExist = await TopicModel.findOne({ title, 'ref.category': category })
+        const oldTopic = await TopicModel.findById(topicId)
 
-        if(topicExist){
+        if(topicExist && (oldTopic.ref.category !== category)){
             const cat = await CategoryModel.findById(category)
             return res.status(200).json({ message: `${title} already exists in ${cat.name}`, status: 0 })
         }
@@ -219,7 +220,6 @@ const updateTopic = async (req, res) => {
 
         if(previousTopic.ref.category !== updatedTopic.ref.category){
 
-            console.log('howdy')
             const cat = await CategoryModel.findById(previousTopic.ref.category)
 
             const filteredCatMeta = cat.meta.topics.filter((id) => id !== topicId)
