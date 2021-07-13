@@ -105,7 +105,7 @@ const getRelatedTopics = async (req, res) => {
 
         const currentTopic = await TopicModel.findById(id)
 
-        const topics = await TopicModel.find({ 'ref.category': currentTopic.ref.category, _id: { $nin: [id] } })
+        const topics = await TopicModel.find({ 'ref.category': currentTopic.ref.category, _id: { $nin: [id] } }).limit(8)
 
         const filtered = topics.filter(top => top._id !== currentTopic._id)
 
