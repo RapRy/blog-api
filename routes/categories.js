@@ -7,7 +7,7 @@ const Auth = require('../middleware/auth.js');
 
 router.get('/', getCategories);
 router.get('/categoriesCount', getCategoriesCount);
-router.get('/:id', Auth, getCategory);
+router.get('/:id', getCategory);
 router.post('/add', Auth, addCategory);
 router.put('/updateStatus/:id', Auth, updateActiveStatus)
 

@@ -139,6 +139,18 @@ const getTopics = async (req, res) => {
 
 }
 
+const getTopicsWithLimit = async (req, res) => {
+    const limit = parseInt(req.params.limit)
+
+    try {
+        const topics = await TopicModel.find({ active: 1 }).limit(limit).sort({ createdAt: -1 })
+
+        res.status(200).json(topics)
+    } catch (error) {
+        res.status(404).json({ message: error.message })
+    }
+}
+
 const publishTopic = async (req, res) => {
     const { title, ref, description } = req.body;
     const { category, creator } = ref;
@@ -286,5 +298,6 @@ module.exports = {
     getLatestTopicsByCategory,
     getHotTopicsByCategory,
     updateActiveStatus,
-    searchTopics
+    searchTopics,
+    getTopicsWithLimit
 }
