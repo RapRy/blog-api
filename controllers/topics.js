@@ -49,7 +49,7 @@ const getLatestTopicsByCategory = async (req, res) => {
        const topics = await TopicModel.find({ active: 1, 'ref.category': id }).sort({ createdAt: -1 }).limit(5)
 
        const category = await CategoryModel.findOne({ active: 1, _id: id })
-
+       
        res.status(200).json({ topics, category })
     } catch (error) {
        res.status(404).json({ message: error.message }) 
