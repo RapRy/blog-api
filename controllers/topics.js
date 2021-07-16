@@ -22,7 +22,7 @@ const getTopic = async (req, res) => {
 
         const category = await CategoryModel.findById(topic.ref.category)
 
-        const replies = await ReplyModel.find({ 'ref.topic': id })
+        const replies = await ReplyModel.find({ 'ref.topic': id, active: 1 })
 
         res.status(200).json({ topic, creator, category, replies })
     } catch (error) {
