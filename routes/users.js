@@ -21,7 +21,7 @@ const {
 const router = express.Router();
 const Auth = require("../middleware/auth.js");
 
-router.get("/participants/:pid", getParticipants);
+router.get("/participants", getParticipants);
 router.get("/activeCount", getActiveUsersCount);
 router.get("/registeredCount", getAllUsersCount);
 router.get("/newUsers/:limit", Auth, getNewUsers);

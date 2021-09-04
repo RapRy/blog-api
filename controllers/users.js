@@ -6,11 +6,22 @@ const jwt = require("jsonwebtoken");
 
 const getParticipants = async (req, res) => {
   try {
-    const postId = req.params.pid;
+    const { postId, creatorId } = req.query;
     const replies = await ReplyModel.aggregate([
       { $match: { "ref.topic": postId } },
-      { $group: { _id: null, creators: { $addToSet: "$ref.creator" } } },
-      { $project: { _id: 0, creators: 1 } },
+      { $group: { _id: null, users: { $addToSet: "$ref.creator" } } },
+      {
+        $project: {
+          _id: 0,
+          creators: {
+            $filter: {
+              input: "$users",
+              as: "user",
+              cond: { $ne: ["$$user", creatorId] },
+            },
+          },
+        },
+      },
     ]);
 
     if (replies.length > 0) {
@@ -19,9 +30,12 @@ const getParticipants = async (req, res) => {
       return;
     }
 
-    res.status(200).json({ users: [] });
+    res.status(204).json({ users: [] });
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
   }
 };
 
@@ -32,7 +46,10 @@ const getUser = async (req, res) => {
     const user = await UserModel.findById(id);
     res.status(200).json(user);
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
   }
 };
 
@@ -43,7 +60,10 @@ const getTopicsByUser = async (req, res) => {
 
     res.status(200).json(topics);
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
   }
 };
 
@@ -55,7 +75,10 @@ const getBlacklistedUsers = async (req, res) => {
 
     res.status(200).json(users);
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
   }
 };
 
@@ -67,7 +90,10 @@ const getRegisteredUsers = async (req, res) => {
 
     res.status(200).json(users);
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
   }
 };
 
@@ -79,7 +105,10 @@ const getNewUsers = async (req, res) => {
       .limit(limit);
     res.status(200).json(users);
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
   }
 };
 
@@ -93,7 +122,10 @@ const getActiveUsers = async (req, res) => {
     }).limit(limit);
     res.status(200).json(users);
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
   }
 };
 
@@ -107,7 +139,10 @@ const getActiveUsersCount = async (req, res) => {
 
     res.status(200).json({ activeUsersCount });
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
   }
 };
 
@@ -119,7 +154,10 @@ const getAllUsersCount = async (req, res) => {
 
     res.status(200).json({ registeredUsersCount });
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
   }
 };
 
@@ -155,7 +193,10 @@ const signInUser = async (req, res) => {
 
     res.status(200).json({ result: existUser, token });
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong" });
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
   }
 };
 
@@ -204,7 +245,10 @@ const signUpUser = async (req, res) => {
 
     res.status(200).json({ result, token });
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong" });
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
   }
 };
 
@@ -235,7 +279,10 @@ const updateUserDetails = async (req, res) => {
 
     res.status(200).json({ result: user, token });
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong" });
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
   }
 };
 
@@ -251,7 +298,10 @@ const blockUser = async (req, res) => {
 
     res.status(200).json({ message: "success" });
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
   }
 };
 
@@ -267,7 +317,10 @@ const unblockUser = async (req, res) => {
 
     res.status(200).json({ message: "success" });
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
   }
 };
 
@@ -283,7 +336,10 @@ const activateUser = async (req, res) => {
 
     res.status(200).json({ message: "success" });
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
   }
 };
 
@@ -299,7 +355,10 @@ const deactivateUser = async (req, res) => {
 
     res.status(200).json({ message: "success" });
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
   }
 };
 
