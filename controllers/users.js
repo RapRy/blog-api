@@ -41,10 +41,13 @@ const getParticipants = async (req, res) => {
 
 const getUser = async (req, res) => {
   const id = req.params.id;
-
   try {
     const user = await UserModel.findById(id);
-    res.status(200).json(user);
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      res.status(404).json({ message: "User does not exists!" });
+    }
   } catch (error) {
     res.status(500).json({
       message:
