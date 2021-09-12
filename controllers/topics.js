@@ -6,7 +6,7 @@ const ReplyModel = require("../models/replyModel.js");
 const getTopicCounts = async (req, res) => {
   try {
     const topicsCount = await TopicModel.countDocuments({ active: 1 });
-    res.status(200).json({ topicsCount });
+    res.status(200).json({ count: topicsCount });
   } catch (error) {
     res.status(500).json({
       message:

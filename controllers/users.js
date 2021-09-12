@@ -140,7 +140,7 @@ const getActiveUsersCount = async (req, res) => {
       accountType: 0,
     });
 
-    res.status(200).json({ activeUsersCount });
+    res.status(200).json({ count: activeUsersCount });
   } catch (error) {
     res.status(500).json({
       message:
@@ -155,7 +155,7 @@ const getAllUsersCount = async (req, res) => {
       accountType: 0,
     });
 
-    res.status(200).json({ registeredUsersCount });
+    res.status(200).json({ count: registeredUsersCount });
   } catch (error) {
     res.status(500).json({
       message:

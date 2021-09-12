@@ -34,7 +34,7 @@ const getCategoriesCount = async (req, res) => {
   try {
     const categoriesCount = await CategoryModel.countDocuments({ active: 1 });
 
-    res.status(200).json({ categoriesCount });
+    res.status(200).json({ count: categoriesCount });
   } catch (error) {
     res.status(500).json({
       message:
