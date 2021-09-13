@@ -373,6 +373,66 @@ const searchTopics = async (req, res) => {
   }
 };
 
+const voteTopic = async (req, res) => {
+  try {
+    const { topicId, userId, type } = req.body;
+
+    const topicExist = await TopicModel.findById(topicId);
+    const userExist = await UserModel.findById(userId);
+
+    if (type === "upvote") {
+      await TopicModel.findByIdAndUpdate(
+        topicExist._id,
+        {
+          "meta.upvotes": [...topicExist.meta.upvotes, userId],
+          "meta.donwvotes": topicExist.meta.downvotes.filter(
+            (id) => id !== userId
+          ),
+        },
+        { useFindAndModify: false }
+      );
+
+      await UserModel.findByIdAndUpdate(
+        userExist._id,
+        {
+          "post.upvotes": [...userExist.post.upvotes, topicId],
+          "post.downvotes": userExist.post.downvotes.filter(
+            (id) => id !== topicId
+          ),
+        },
+        { useFindAndModify: false }
+      );
+    } else if (type === "downvote") {
+      await TopicModel.findByIdAndUpdate(
+        topicExist._id,
+        {
+          "meta.downvotes": [...topicExist.meta.downvotes, userId],
+          "meta.upvotes": topicExist.meta.upvotes.filter((id) => id !== userId),
+        },
+        { useFindAndModify: false }
+      );
+
+      await UserModel.findByIdAndUpdate(
+        userExist._id,
+        {
+          "post.downvotes": [...userExist.post.downvotes, topicId],
+          "post.upvotes": userExist.post.upvotes.filter((id) => id !== topicId),
+        },
+        { useFindAndModify: false }
+      );
+    }
+
+    res
+      .status(200)
+      .json({ message: type === "upvote" ? "up voted" : "down voted" });
+  } catch (error) {
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
+  }
+};
+
 module.exports = {
   getTopics,
   getTopic,
@@ -388,4 +448,5 @@ module.exports = {
   updateActiveStatus,
   searchTopics,
   getTopicsWithLimit,
+  voteTopic,
 };

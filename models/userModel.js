@@ -1,10 +1,11 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const { Schema, model } = mongoose;
 
-const userSchema = new Schema({
+const userSchema = new Schema(
+  {
     name: {
-        firstName: String,
-        lastName: String
+      firstName: String,
+      lastName: String,
     },
     username: String,
     email: String,
@@ -14,19 +15,25 @@ const userSchema = new Schema({
     active: Number,
     blacklisted: Number,
     date: {
-        registered: Date,
-        activity: [{
-            id: String,
-            date: Date
-        }]
+      registered: Date,
+      activity: [
+        {
+          id: String,
+          date: Date,
+        },
+      ],
     },
     schoolId: Number,
     post: {
-        topics: [String],
-        replies: [String]
-    }
-}, { timestamps: true });
+      topics: [String],
+      replies: [String],
+      upvotes: [String],
+      downvotes: [String],
+    },
+  },
+  { timestamps: true }
+);
 
-const Users = model('user', userSchema);
+const Users = model("user", userSchema);
 
 module.exports = Users;
