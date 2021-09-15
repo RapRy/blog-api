@@ -3,6 +3,70 @@ const CategoryModel = require("../models/categoryModel");
 const UserModel = require("../models/userModel.js");
 const ReplyModel = require("../models/replyModel.js");
 
+const getUpVotesCount = async (req, res) => {
+  try {
+    // const count = await TopicModel.aggregate([
+    //   {
+    //     $group: {
+    //       id: "$_id",
+    //       upVotes: {
+    //         $push: { item: "$meta.upvotes" },
+    //       },
+    //     },
+    //   },
+    // ]);
+
+    const topics = await TopicModel.find();
+
+    let upVotes = [];
+
+    topics.forEach((topics) => {
+      if (topics.meta.upvotes.length > 0) {
+        topics.meta.upvotes.forEach((vote) => upVotes.push(vote));
+      }
+    });
+
+    res.status(200).json({ count: upVotes.length });
+  } catch (error) {
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
+  }
+};
+
+const getDownVotesCount = async (req, res) => {
+  try {
+    // const count = await TopicModel.aggregate([
+    //   {
+    //     $group: {
+    //       id: "$_id",
+    //       upVotes: {
+    //         $push: { item: "$meta.upvotes" },
+    //       },
+    //     },
+    //   },
+    // ]);
+
+    const topics = await TopicModel.find();
+
+    let downVotes = [];
+
+    topics.forEach((topics) => {
+      if (topics.meta.downvotes.length > 0) {
+        topics.meta.downvotes.forEach((vote) => downVotes.push(vote));
+      }
+    });
+
+    res.status(200).json({ count: downVotes.length });
+  } catch (error) {
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
+  }
+};
+
 const getTopicCounts = async (req, res) => {
   try {
     const topicsCount = await TopicModel.countDocuments({ active: 1 });
@@ -25,7 +89,9 @@ const getTopic = async (req, res) => {
 
     const category = await CategoryModel.findById(topic.ref.category);
 
-    const replies = await ReplyModel.find({ "ref.topic": id, active: 1 });
+    const replies = await ReplyModel.find({ "ref.topic": id, active: 1 }).sort({
+      createdAt: -1,
+    });
 
     res.status(200).json({ topic, creator, category, replies });
   } catch (error) {
@@ -449,4 +515,6 @@ module.exports = {
   searchTopics,
   getTopicsWithLimit,
   voteTopic,
+  getUpVotesCount,
+  getDownVotesCount,
 };

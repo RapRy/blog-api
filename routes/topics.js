@@ -15,6 +15,8 @@ const {
   searchTopics,
   getTopicsWithLimit,
   voteTopic,
+  getUpVotesCount,
+  getDownVotesCount,
 } = require("../controllers/topics.js");
 
 const router = express.Router();
@@ -31,6 +33,8 @@ router.get("/fromForum/limit/:limit", getTopicsWithLimit);
 router.get("/:id", getTopics);
 router.get("/details/:id", getTopic);
 router.get("/search/:keyword", searchTopics);
+router.get("/votes/upvotesCount", getUpVotesCount);
+router.get("/votes/downvotesCount", getDownVotesCount);
 
 router.post("/publish", Auth, publishTopic);
 router.post("/views", Auth, addTopicViews);
