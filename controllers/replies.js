@@ -67,7 +67,9 @@ const repliesCount = async (req, res) => {
 const getReplies = async (req, res) => {
   try {
     const id = req.params.id;
-    const replies = await ReplyModel.find({ "ref.topic": id, active: 1 });
+    const replies = await ReplyModel.find({ "ref.topic": id, active: 1 }).sort({
+      createdAt: -1,
+    });
 
     res.status(200).json(replies);
   } catch (error) {
