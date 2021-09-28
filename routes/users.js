@@ -16,6 +16,7 @@ const {
   getTopicsByUser,
   updateUserDetails,
   getParticipants,
+  getLastCommenter,
 } = require("../controllers/users.js");
 
 const router = express.Router();
@@ -24,6 +25,7 @@ const Auth = require("../middleware/auth.js");
 router.get("/participants", getParticipants);
 router.get("/activeCount", getActiveUsersCount);
 router.get("/registeredCount", getAllUsersCount);
+router.get("/lastcommenter/:id", getLastCommenter);
 router.get("/newUsers/:limit", Auth, getNewUsers);
 router.get("/activeUsers/:limit", Auth, getActiveUsers);
 router.get("/registeredUsers", Auth, getRegisteredUsers);

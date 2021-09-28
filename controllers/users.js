@@ -39,6 +39,26 @@ const getParticipants = async (req, res) => {
   }
 };
 
+const getLastCommenter = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const reply = await ReplyModel.findById(id, { "ref.creator": 1, _id: 0 });
+
+    if (reply) {
+      const user = await UserModel.findById(reply.ref.creator);
+      res.status(200).json(user);
+      return;
+    }
+
+    res.status(404).json({ message: "User does not exists!" });
+  } catch (error) {
+    res.status(500).json({
+      message:
+        "Application rejected: Something went wrong, try sending form again",
+    });
+  }
+};
+
 const getUser = async (req, res) => {
   const id = req.params.id;
   try {
@@ -382,4 +402,5 @@ module.exports = {
   getTopicsByUser,
   updateUserDetails,
   getParticipants,
+  getLastCommenter,
 };
