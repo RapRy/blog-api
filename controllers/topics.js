@@ -127,9 +127,9 @@ const getLatestTopicsByCategory = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(5);
 
-    const category = await CategoryModel.findOne({ active: 1, _id: id });
+    // const category = await CategoryModel.findOne({ active: 1, _id: id });
 
-    res.status(200).json({ topics, category });
+    res.status(200).json({ topics });
   } catch (error) {
     res.status(500).json({
       message:
@@ -175,9 +175,9 @@ const getHotTopicsByCategory = async (req, res) => {
       if (top.meta.replies.length >= 2) hotTopics.push(top);
     });
 
-    const category = await CategoryModel.findOne({ active: 1, _id: id });
+    // const category = await CategoryModel.findOne({ active: 1, _id: id });
 
-    res.status(200).json({ hotTopics, category });
+    res.status(200).json({ topics: hotTopics });
   } catch (error) {
     res.status(500).json({
       message:
