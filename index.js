@@ -7,6 +7,7 @@ const UsersRoutes = require("./routes/users.js");
 const CategoriesRoutes = require("./routes/categories.js");
 const TopicRoutes = require("./routes/topics.js");
 const RepliesRoutes = require("./routes/replies.js");
+const StatisticsRoutes = require("./routes/statistics.js");
 
 const app = express();
 dotenv.config();
@@ -25,6 +26,8 @@ app.use("/categories", CategoriesRoutes);
 app.use("/topics", TopicRoutes);
 
 app.use("/replies", RepliesRoutes);
+
+app.use("/statistics", StatisticsRoutes);
 
 app.get("/", (req, res) => res.send("nothing here for you"));
 
